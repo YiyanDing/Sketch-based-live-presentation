@@ -193,6 +193,30 @@
                 </div>
             </div>
             <div class="vr"></div>
+            <div id="sidebar2" class="span3 margin-left-0 width-240">
+                <div id="page-nav">
+                    <div id="mypagebar" class="clearfix">
+                        <div class="btn-group">
+                            <!-- data-bind="click:addPage.bind($data,currentLayout())" -->
+                            <button class="btn" data-toggle="modal" data-target="#template-dialog"><i class="icon-plus"></i></button>
+                            <button class="btn" data-bind="click: clonePage"><i class="icon-file"></i></button>
+                            <button class="btn" data-bind="click: moveUpPage"><i class="icon-arrow-up"></i></button>
+                            <button class="btn" data-bind="click: moveDownPage"><i class="icon-arrow-down"></i></button>
+                            <button class="btn" data-bind="click: removePage"><i class="icon-trash"></i></button>
+                        </div>
+                    </div>
+                    <div id="page-list-wrapper">
+                        <ul id="page-list" class="nav nav-tabs nav-stacked" data-bind="foreach: pageList">
+                            <li data-bind="css: {active: $index() == $root.currentPage()}, click: $parent.clickPage">
+                                <div>
+                                <img data-bind="attr: {src: 'images/layout/' + key + '.png'}" />
+                                </div>
+                                <a href="#" data-bind="text: ($index()+1) + '、' + (title || '新页面')"></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
             <div id="editor-stage" class="stage" data-bind="attr: {'data-design': currentDesign}">
                 <div id="editor-slide" class="slide" data-bind="attr: {'data-layout': currentLayout}">
                     <div id="slide-title" data-key="title">
