@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
-    <title>在线幻灯片</title>
+    <title>Sketch Live Presentation</title>
     <link rel="stylesheet" href="lib/css/bootstrap.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/adjust.css">
@@ -18,45 +18,45 @@
     <div id="editor" class="window">
         <div id="topbar" class="navbar margin-bottom-0">
             <div class="navbar-inner">
-                <a class="brand" href="#">HTML5幻灯片系统</a>
+                <a class="brand" href="#">Sketch Live Presentation</a>
                 <ul class="nav" id="title-label-wrapper" data-bind="visible: !editingTitle()">
                     <li>
                         <a href="#" id="label-title" data-bind="text: titleDisplay, click: editTitle"></a>
                     </li>
                 </ul>
                 <form class="navbar-form pull-left" id="title-editor-wrapper" data-bind="visible: editingTitle" onsubmit="return false;">
-                    <input type="text" class="span2" id="input-title" placeholder="请输入PPT标题..." data-bind="value: title, hasfocus: editingTitle">
+                    <input type="text" class="span2" id="input-title" placeholder="Input the title..." data-bind="value: title, hasfocus: editingTitle">
                 </form>
                 <ul class="nav pull-right">
-                    <li><a href="#theme-manager" data-toggle="modal"><i class="icon-briefcase"></i> 主题和动作</a></li>
-                    <li><a href="#reset-confirm" data-toggle="modal"><i class="icon-repeat"></i> 全部重做</a></li>
+                    <li><a href="#theme-manager" data-toggle="modal"><i class="icon-briefcase"></i> Theme and Action</a></li>
+                    <li><a href="#reset-confirm" data-toggle="modal"><i class="icon-repeat"></i> Restart</a></li>
                     <li>
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="icon-file"></i> 打开幻灯片<b class="caret"></b>
+                            <i class="icon-file"></i> Open<b class="caret"></b>
                         </a>
                         <ul id="import" class="dropdown-menu">
-                            <li><a href="#online-dialog" data-toggle="modal" id="open-online-btn">打开在线幻灯片</a></li>
-                            <li><a href="#import-dialog" data-toggle="modal">导入（text格式）</a></li>
+                            <li><a href="#online-dialog" data-toggle="modal" id="open-online-btn">Open online</a></li>
+                            <li><a href="#import-dialog" data-toggle="modal">Import (text)</a></li>
                         </ul>
                     </li>
                     <li>
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="icon-ok"></i> 保存幻灯片<b class="caret"></b>
+                            <i class="icon-ok"></i> Save<b class="caret"></b>
                         </a>
                         <ul id="export" class="dropdown-menu">
-                            <li><a href="#" id="">存入数据库</a></li>
-                            <li><a href="#" id="save-text-btn">导出为text</a></li>
-                            <li><a href="#" id="save-html-btn">导出为html</a></li>
+                            <li><a href="#" id="">Save in Database</a></li>
+                            <li><a href="#" id="save-text-btn">Export as text</a></li>
+                            <li><a href="#" id="save-html-btn">Export as html</a></li>
                         </ul>
                     </li>
-                    <li><a href="#" id="remove-btn"><i class="icon-remove"></i>移除</a></li>
+                    <li><a href="#" id="remove-btn"><i class="icon-remove"></i>Remove</a></li>
                     <li>
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="icon-play"></i> 预览 <b class="caret"></b>
+                            <i class="icon-play"></i> Preview <b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu pull-right">
-                            <li><a href="#" id="preview-btn">从第一页开始</a></li>
-                            <li><a href="#" id="preview-current-btn">从当前页开始</a></li>
+                            <li><a href="#" id="preview-btn">Start from first page</a></li>
+                            <li><a href="#" id="preview-current-btn">Start from current page</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -71,7 +71,7 @@
                 </div>
                 <div class="btn-group">
                     <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                        字体
+                        Font-family
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
@@ -83,7 +83,7 @@
                 </div>
                 <div class="btn-group">
                     <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                        大小
+                        Size
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
@@ -98,7 +98,7 @@
                 </div>
                 <div class="btn-group">
                     <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                        颜色
+                        Color
                         <span class="caret"></span>
                     </a>
                     <div class="dropdown-menu" id="mycolorPicker">
@@ -152,7 +152,7 @@
                   <button class="btn" data-key="history-revert"><i class="icon-step-forward"></i></button>
                 </div> -->
                 <div class="show-layout-toggle pull-right">
-                    <a onclick="mylayoutbarToggle()">展开布局模板<b class="caret"></b></a>
+                    <a onclick="mylayoutbarToggle()">Templates<b class="caret"></b></a>
                 </div>
             </div>
         </div>
@@ -356,14 +356,14 @@
         <div id="reset-confirm" class="modal hide fade">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">×</button>
-                <h3>重新制作</h3>
+                <h3>Restart</h3>
             </div>
             <div class="modal-body">
-                你确定要删除所有信息重做吗?
+              Are you sure to restart?
             </div>
             <div class="modal-footer">
-                <button class="btn" data-dismiss="modal">不要</button>
-                <button class="btn btn-primary" data-dismiss="modal" data-bind="click: resetData">是的</button>
+                <button class="btn" data-dismiss="modal">No</button>
+                <button class="btn btn-primary" data-dismiss="modal" data-bind="click: resetData">Yes</button>
             </div>
         </div>
 
