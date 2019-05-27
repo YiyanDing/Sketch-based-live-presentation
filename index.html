@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/adjust.css">
     <link rel="stylesheet" href="lib/css/codeStyles/my-style.css">
+    <link rel="stylesheet" href="css/app.19a1d8179bda59ea6868.css">
 </head>
 
 <body>
@@ -66,7 +67,7 @@
         <div id="toolbar" class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="btn-group">
-                    <a class="btn" data-role="undo" href="#">撤</i></a>
+                    <a class="btn" data-role="undo" href="#">Redo</i></a>
                     <a class="btn" data-role="redo" href="#"><i class="icon-repeat"></i></a>
                 </div>
                 <div class="btn-group">
@@ -219,22 +220,619 @@
             </div>
             <div id="editor-stage" class="stage" data-bind="attr: {'data-design': currentDesign}">
                 <div id="editor-slide" class="slide" data-bind="attr: {'data-layout': currentLayout}">
-                    <div id="slide-title" data-key="title">
-                        <div class="output" data-bind="click: clickItem"></div>
-                    </div>
-                    <div id="slide-subtitle" data-key="subtitle">
-                        <div class="output" data-bind="click: clickItem"></div>
-                    </div>
-                    <div id="slide-content" data-key="content">
-                        <div class="output" data-bind="click: clickItem"></div>
-                    </div>
-                    <div id="slide-subtitle2" data-key="subtitle2">
-                        <div class="output" data-bind="click: clickItem"></div>
-                    </div>
-                    <div id="slide-content2" data-key="content2">
-                        <div class="output" data-bind="click: clickItem"></div>
-                    </div>
-                    <div id="item-editor-layer" class="layer"></div>
+                    <iframe id="canvas_frame" class="preview-frame" aria-label="sketch output" role="main" title="sketch output" sandbox="allow-scripts allow-pointer-lock allow-same-origin allow-popups allow-forms allow-modals" srcdoc="<!DOCTYPE HTML>
+                        <html><head>
+                            <script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/p5.min.js&quot; crossorigin=&quot;&quot;></script>
+                            <script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/addons/p5.dom.min.js&quot; crossorigin=&quot;&quot;></script>
+                            <script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/addons/p5.sound.min.js&quot; crossorigin=&quot;&quot;></script>
+                            
+                          <base href=&quot;https://editor.p5js.org/WestRiverLin/sketches/SJnD_deBW/&quot;><style>
+                        html, body {
+                          margin: 0;
+                          padding: 0;
+                        }
+                        </style><script src=&quot;/previewScripts.js&quot;></script><script>
+                            function getScriptOff(line) {
+                              var offs = [[50,&quot;sketch&quot;]];
+                              var l = 0;
+                              var file = '';
+                              for (var i=0; i<offs.length; i++) {
+                                var n = offs[i][0];
+                                if (n < line &amp;&amp; n > l) {
+                                  l = n;
+                                  file = offs[i][1];
+                                }
+                              }
+                              return [line - l, file];
+                            }
+                            // catch reference errors, via http://stackoverflow.com/a/12747364/2994108
+                            window.onerror = function (msg, url, lineNumber, columnNo, error) {
+                                var string = msg.toLowerCase();
+                                var substring = &quot;script error&quot;;
+                                var data = {};
+                                if (url.match(/^(http:\/\/|https:\/\/)/) !== null &amp;&amp; error.stack){
+                                  var errorNum = error.stack.split('about:srcdoc:')[1].split(':')[0];
+                                  var fileInfo = getScriptOff(errorNum);
+                                  data = msg + ' (' + fileInfo[1] + ': line ' + fileInfo[0] + ')';
+                                } else {
+                                  var fileInfo = getScriptOff(lineNumber);
+                                  data = msg + ' (' + fileInfo[1] + ': line ' + fileInfo[0] + ')';
+                                }
+                                window.parent.postMessage([{
+                                  log: [{
+                                    method: 'error',
+                                    data: [data],
+                                    id: Date.now().toString()
+                                  }],
+                                  source: fileInfo[1]
+                                }], '*');
+                              return false;
+                            };
+                          </script></head>
+                          <body>
+                            <script data-tag=&quot;@fs-sketch.js&quot;>///////////////////////////////////////////////////
+                        //===============================================//
+                        //Floating Light v1.0 - By Shangjing Lin(Stanley)//
+                        //===============================================//
+                        ///////////////////////////////////////////////////
+                        
+                        /*
+                        This work was originally inspired by Van Gogh's starry night and scraped painting.
+                        I have seen the dynamic starry night made by openFramework, it's wonderful and amazing.
+                        This is the reason why I decided to make a dynamic drawing tool.
+                        You can control the flow of time and create dynamic particles, 
+                        so it is easy to complete the amazing effect.
+                        
+                        Shortcut key:
+                        0-9 : Select colors.
+                        D : Switch between day and night.
+                        B : Switch the brush type.
+                        Space : Play/Pause.
+                        T : Timer tool.
+                        E : Eraser.
+                        C : Clear canvas.
+                        S : Save canvas to PNG file.
+                        L Shift: Hide the menu.
+                        */
+                        
+                        ////////////////////////////////////////////
+                        //Global Variable
+                        ////////////////////////////////////////////
+                        var objs = [];
+                        var btns = [];
+                        var FPS = 60;
+                        var timepast = 0;
+                        var R = 200;
+                        var G = 150;
+                        var B = 50;
+                        var bR = 0;
+                        var bG = 0;
+                        var bB = 50;
+                        var eraserRange = 20;
+                        var timerRange = 50;
+                        var brushType = &quot;CIRCLE&quot;;
+                        var pbrushType = &quot;CIRCLE&quot;;
+                        var isPlaying = true;
+                        var isMenuHide = false;
+                        
+                        
+                        ////////////////////////////////////////////
+                        //FunctionButton
+                        ////////////////////////////////////////////
+                        function FuncBtn(X, Y, W, H, CMD) {
+                          this.x = X;
+                          this.y = Y;
+                          this.w = W;
+                          this.h = H;
+                          this.cmd = CMD;
+                        }
+                        FuncBtn.prototype.isMouseInBtn = function() {
+                          if (mouseX >= this.x &amp;&amp; mouseX <= this.x + this.w &amp;&amp;
+                            mouseY >= this.y &amp;&amp; mouseY <= this.y + this.h) {
+                            return true;
+                          } else {
+                            return false;
+                          }
+                        }
+                        FuncBtn.prototype.clickBtn = function() {
+                          print(&quot;ClickBtn!&quot;);
+                          if (this.cmd == &quot;sun&quot;) {
+                            bR = 200;
+                            bG = 255;
+                            bB = 255;
+                            this.cmd = &quot;moon&quot;;
+                        
+                          } else if (this.cmd == &quot;moon&quot;) {
+                            bR = 0;
+                            bG = 0;
+                            bB = 50;
+                            this.cmd = &quot;sun&quot;;
+                          } else if (this.cmd == &quot;pause&quot;) {
+                            isPlaying = false;
+                            for (var i = 0; i < objs.length; i++) {
+                              objs[i].isPlaying = false;
+                            }
+                            this.cmd = &quot;play&quot;;
+                        
+                          } else if (this.cmd == &quot;play&quot;) {
+                            isPlaying = true;
+                            for (var i = 0; i < objs.length; i++) {
+                              objs[i].isPlaying = true;
+                            }
+                            this.cmd = &quot;pause&quot;;
+                        
+                          } else if (this.cmd == &quot;timer&quot;) {
+                            brushType = &quot;TIMER&quot;;
+                        
+                          } else if (this.cmd == &quot;eraser&quot;) {
+                            brushType = &quot;ERASER&quot;;
+                          } else if (this.cmd == &quot;clear&quot;) {
+                            objs = [];
+                         } else if (this.cmd == &quot;save&quot;) {
+                             saveCanvas(&quot;Painting&quot;, &quot;png&quot;)
+                          } else if (this.cmd == &quot;circle&quot;) {
+                            brushType = &quot;TRIANGLE&quot;;
+                            pbrushType = &quot;CIRCLE&quot;;
+                            this.cmd = &quot;triangle&quot;;
+                        
+                          } else if (this.cmd == &quot;triangle&quot;) {
+                            brushType = &quot;LINES&quot;;
+                            pbrushType = &quot;TRIANGLE&quot;;
+                            this.cmd = &quot;lines&quot;;
+                        
+                          } else if (this.cmd == &quot;lines&quot;) {
+                            brushType = &quot;CIRCLE&quot;;
+                            pbrushType = &quot;LINES&quot;;
+                            this.cmd = &quot;circle&quot;;
+                          }
+                        }
+                        
+                        
+                        
+                        FuncBtn.prototype.displayBtn = function() {
+                          stroke(0);
+                          strokeWeight(1);
+                          fill(255, 255, 255);
+                          rect(this.x, this.y, this.w, this.h, 5);
+                        
+                        
+                          if (this.cmd == &quot;sun&quot;) {
+                            fill(255, 50, 50);
+                            translate(this.x + this.w / 2, this.y + this.h / 2);
+                            for (var i = 0; i < 8; i++) {
+                              rotate(PI / 4.0);
+                              line(0, 0, 8, 8);
+                            }
+                            resetMatrix();
+                            ellipse(this.x + this.w / 2, this.y + this.h / 2, 15, 15);
+                        
+                        
+                          } else if (this.cmd == &quot;moon&quot;) {
+                            fill(255, 255, 50);
+                            translate(this.x + this.w / 2, this.y + this.h / 2);
+                            arc(-5, 0, 25, 25, PI + HALF_PI, HALF_PI, CHORD);
+                            resetMatrix();
+                        
+                          } else if (this.cmd == &quot;pause&quot;) {
+                            fill(0);
+                            translate(this.x + this.w / 2, this.y + this.h / 2);
+                            rectMode(CENTER);
+                            rect(-4, 0, 4, 15);
+                            rect(4, 0, 4, 15);
+                            rectMode(CORNER);
+                            resetMatrix();
+                          } else if (this.cmd == &quot;play&quot;) {
+                            fill(0);
+                            translate(this.x + this.w / 2, this.y + this.h / 2);
+                            triangle(-2, -8, -2, 8, 6, 0);
+                            resetMatrix();
+                          } else if (this.cmd == &quot;timer&quot;) {
+                        
+                            translate(this.x + this.w / 2, this.y + this.h / 2);
+                            noFill();
+                            ellipse(0, 0, 22, 22);
+                            ellipse(0, 0, 25, 25);
+                            fill(0);
+                            ellipse(0, 0, 3, 3);
+                            strokeWeight(2);
+                            line(0, 0, 5, 0);
+                            line(0, 0, 0, -7);
+                            resetMatrix();
+                          } else if (this.cmd == &quot;eraser&quot;) {
+                            fill(0);
+                            noStroke();
+                            translate(this.x + this.w / 2, this.y + this.h / 2);
+                            textSize(25);
+                            textAlign(CENTER);
+                            textStyle(BOLD);
+                            text(&quot;E&quot;, 0, 8);
+                            resetMatrix();
+                          } else if (this.cmd == &quot;clear&quot;) {
+                        
+                            fill(0);
+                            noStroke();
+                            translate(this.x + this.w / 2, this.y + this.h / 2);
+                            textSize(25);
+                            textAlign(CENTER);
+                            textStyle(BOLD);
+                            text(&quot;C&quot;, 0, 8);
+                            resetMatrix();
+                        } else if (this.cmd == &quot;save&quot;) {
+                        
+                            fill(0);
+                            noStroke();
+                            translate(this.x + this.w / 2, this.y + this.h / 2);
+                            textSize(25);
+                            textAlign(CENTER);
+                            textStyle(BOLD);
+                            text(&quot;S&quot;, 0, 8);
+                            resetMatrix();
+                          } else if (this.cmd == &quot;circle&quot;) {
+                        
+                            fill(0);
+                            translate(this.x + this.w / 2, this.y + this.h / 2);
+                            ellipse(6, -2, 10, 10);
+                            ellipse(-5, -5, 5, 5);
+                            ellipse(3, 8, 4, 4);
+                            resetMatrix();
+                        
+                          } else if (this.cmd == &quot;triangle&quot;) {
+                        
+                            fill(0);
+                            translate(this.x + this.w / 2, this.y + this.h / 2);
+                            triangle(0, 0, 10, 0, 5, -8);
+                            triangle(-5, 8, 5, 8, 0, 0);
+                            triangle(-8, -5, -3, -5, -5.5, -9);
+                            resetMatrix();
+                        
+                          } else if (this.cmd == &quot;lines&quot;) {
+                        
+                            fill(0);
+                            strokeWeight(2);
+                            translate(this.x + this.w / 2, this.y + this.h / 2);
+                            line(-5, -10, 5, 0);
+                            line(-10, -10, 10, 10);
+                            line(-5, 0, 5, 10);
+                            resetMatrix();
+                        
+                          }
+                        }
+                        
+                        
+                        ////////////////////////////////////////////
+                        //ColorButton
+                        ////////////////////////////////////////////
+                        function ColorBtn(X, Y, W, H, givenR, givenG, givenB) {
+                          this.x = X;
+                          this.y = Y;
+                          this.w = W;
+                          this.h = H;
+                          this.r = givenR;
+                          this.g = givenG;
+                          this.b = givenB;
+                        }
+                        ColorBtn.prototype.isMouseInBtn = function() {
+                          if (mouseX >= this.x &amp;&amp; mouseX <= this.x + this.w &amp;&amp;
+                            mouseY >= this.y &amp;&amp; mouseY <= this.y + this.h) {
+                            return true;
+                          } else {
+                            return false;
+                          }
+                        }
+                        ColorBtn.prototype.clickBtn = function() {
+                          R = this.r;
+                          G = this.g;
+                          B = this.b;
+                          if (brushType == &quot;ERASER&quot; || brushType == &quot;TIMER&quot;) {
+                            brushType = pbrushType;
+                          }
+                        }
+                        ColorBtn.prototype.displayBtn = function() {
+                          stroke(0);
+                          strokeWeight(1);
+                          fill(this.r * 1.5, this.g * 1.5, this.b * 1.5);
+                          rect(this.x, this.y, this.w, this.h, 5);
+                        }
+                        
+                        
+                        ////////////////////////////////////////////
+                        //Node
+                        ////////////////////////////////////////////
+                        function Node(position, givenSize, givenR, givenG, givenB) {
+                          this.R = givenR;
+                          this.G = givenG;
+                          this.B = givenB;
+                          this.position = createVector(position.x, position.y);
+                          this.position.x += (random(20) - 10);
+                          this.position.y += (random(20) - 10);
+                          this.size = createVector(0, 0);
+                          this.sizeScale = 0.5;
+                          var randomSize = givenSize / 2 + random(10);
+                          this.baseSize = createVector(randomSize, randomSize);
+                          this.timepast = 0;
+                          this.isPlaying = isPlaying;
+                          this.rotateAngle = random(2 * PI);
+                          this.shapeType = brushType;
+                          this.pmouseX = pmouseX;
+                          this.pmouseY = pmouseY;
+                          this.mouseX = mouseX;
+                          this.mouseY = mouseY;
+                        }
+                        Node.prototype.drawing = function() {
+                          noStroke();
+                          if (this.shapeType == &quot;CIRCLE&quot;) {
+                            translate(this.position.x, this.position.y);
+                            fill(this.size.x * this.R / 10, this.size.x * this.G / 10, this.size.x * this.B / 10, round(sin(this.timepast) * 128));
+                            ellipse(sin(this.timepast) * this.baseSize.x, cos(this.timepast) * this.baseSize.y, this.size.x * 1.25, this.size.y * 1.25);
+                            fill(this.size.x * this.R / 10, this.size.x * this.G / 10, this.size.x * this.B / 10, 255);
+                            ellipse(sin(this.timepast) * this.baseSize.x, cos(this.timepast) * this.baseSize.y, this.size.x, this.size.y);
+                            resetMatrix();
+                        
+                          } else if (this.shapeType == &quot;TRIANGLE&quot;) {
+                            translate(this.position.x, this.position.y);
+                            rotate(this.rotateAngle);
+                            fill(this.size.x * this.R / 10, this.size.x * this.G / 10, this.size.x * this.B / 10, round(sin(this.timepast) * 128));
+                            triangle(sin(this.timepast) * this.baseSize.x - this.size.x * 1.5 * 0.5,
+                              cos(this.timepast) * this.baseSize.y - this.size.y * 1.5 * 0.5,
+                        
+                              sin(this.timepast) * this.baseSize.x + this.size.x * 1.5 * 0.5,
+                              cos(this.timepast) * this.baseSize.y - this.size.y * 1.5 * 0.5,
+                        
+                              sin(this.timepast) * this.baseSize.x * 0.5,
+                              cos(this.timepast) * this.baseSize.y + this.size.y * 1.5 * 0.9 * 0.5);
+                        
+                            fill(this.size.x * this.R / 10, this.size.x * this.G / 10, this.size.x * this.B / 10, 255);
+                            triangle(sin(this.timepast) * this.baseSize.x - this.size.x * 0.5,
+                              cos(this.timepast) * this.baseSize.y - this.size.y * 0.5,
+                        
+                              sin(this.timepast) * this.baseSize.x + this.size.x * 0.5,
+                              cos(this.timepast) * this.baseSize.y - this.size.y * 0.5,
+                        
+                              sin(this.timepast) * this.baseSize.x * 0.5,
+                              cos(this.timepast) * this.baseSize.y + this.size.y * 0.9 * 0.5);
+                            resetMatrix();
+                        
+                        
+                          } else if (this.shapeType == &quot;LINES&quot;) {
+                            //translate(this.position.x,this.position.y);
+                            // rotate(this.rotateAngle);
+                        
+                            strokeWeight(2 + this.size.x / 1.5 * 0.75);
+                            stroke(this.size.x * this.R / 8, this.size.x * this.G / 8, this.size.x * this.B / 8, round(sin(this.timepast) * 128));
+                            line(this.pmouseX, this.pmouseY, this.mouseX, this.mouseY);
+                            strokeWeight(1.5 + this.size.x / 1.5 * 0.5);
+                            stroke(this.size.x * this.R / 8, this.size.x * this.G / 8, this.size.x * this.B / 8, 255);
+                            line(this.pmouseX, this.pmouseY, this.mouseX, this.mouseY);
+                        
+                        
+                            //resetMatrix();
+                          }
+                        }
+                        Node.prototype.update = function() {
+                          this.size = createVector(this.baseSize.x + sin(this.timepast) * this.baseSize.x * this.sizeScale,
+                            this.baseSize.y + sin(this.timepast) * this.baseSize.y * this.sizeScale);
+                          if (this.isPlaying) {
+                            this.timepast += 1 / FPS;
+                          }
+                        }
+                        
+                        ////////////////////////////////////////////
+                        //Setup
+                        ////////////////////////////////////////////
+                        
+                        function setup() {
+                          frameRate(FPS);
+                          createCanvas(600, 600);
+                          noCursor();
+                          strokeCap(PROJECT);
+                          //======================
+                          //ButtonList
+                          //======================
+                          //Color Buttons
+                          btns.push(new ColorBtn(5, 5 + 30 * 0, 30, 30, 200, 50, 50));
+                          btns.push(new ColorBtn(5, 5 + 30 * 1, 30, 30, 200, 100, 50));
+                          btns.push(new ColorBtn(5, 5 + 30 * 2, 30, 30, 200, 150, 50));
+                        
+                          btns.push(new ColorBtn(5, 5 + 30 * 3, 30, 30, 150, 200, 50));
+                          btns.push(new ColorBtn(5, 5 + 30 * 4, 30, 30, 100, 200, 50));
+                          btns.push(new ColorBtn(5, 5 + 30 * 5, 30, 30, 50, 200, 50));
+                        
+                          btns.push(new ColorBtn(5, 5 + 30 * 6, 30, 30, 50, 150, 200));
+                          btns.push(new ColorBtn(5, 5 + 30 * 7, 30, 30, 50, 100, 200));
+                          btns.push(new ColorBtn(5, 5 + 30 * 8, 30, 30, 50, 50, 200));
+                        
+                          btns.push(new ColorBtn(5, 5 + 30 * 9, 30, 30, 100, 50, 200));
+                          btns.push(new ColorBtn(5, 5 + 30 * 10, 30, 30, 150, 50, 200));
+                          btns.push(new ColorBtn(5, 5 + 30 * 11, 30, 30, 200, 50, 200));
+                        
+                          //Function Buttons
+                          btns.push(new FuncBtn(5, 5 + 30 * 12, 30, 30, &quot;sun&quot;));
+                          btns.push(new FuncBtn(5, 5 + 30 * 13, 30, 30, &quot;circle&quot;));
+                          if(isPlaying){
+                            btns.push(new FuncBtn(5, 5 + 30 * 14, 30, 30, &quot;pause&quot;));
+                          }else{
+                            btns.push(new FuncBtn(5, 5 + 30 * 14, 30, 30, &quot;play&quot;));
+                          }
+                          btns.push(new FuncBtn(5, 5 + 30 * 15, 30, 30, &quot;timer&quot;));
+                          btns.push(new FuncBtn(5, 5 + 30 * 16, 30, 30, &quot;eraser&quot;));
+                          btns.push(new FuncBtn(5, 5 + 30 * 17, 30, 30, &quot;clear&quot;));
+                          btns.push(new FuncBtn(5, 5 + 30 * 18, 30, 30, &quot;save&quot;));
+                        }
+                        
+                        
+                        ////////////////////////////////////////////
+                        //Draw
+                        ////////////////////////////////////////////
+                        function draw() {
+                          background(bR, bG, bB);
+                          timepast += 1 / FPS;
+                          if (!isMenuHide) {
+                            if (timepast < 2) {
+                              noStroke();
+                              textAlign(LEFT);
+                              textSize(15);
+                              fill(255 - bR);
+                              text(&quot;Floating Light v1.0 - Made By Shangjing Lin(Stanley)&quot;, 10, height - 10);
+                            } else if (timepast < 5) {
+                              noStroke();
+                              textAlign(LEFT);
+                              textSize(15);
+                              fill(255 - bR);
+                              text(&quot;Press Left Shift to hide Menu, Press S to save canvas to PNG.&quot;, 10, height - 10);
+                            }
+                          }
+                          //===================
+                          //Drawing Something
+                          //===================
+                          if (mouseIsPressed &amp;&amp; (mouseX > 40 || isMenuHide)) {
+                            if (brushType == &quot;CIRCLE&quot; || brushType == &quot;LINES&quot; || brushType == &quot;TRIANGLE&quot;) {
+                              var position = createVector(mouseX, mouseY);
+                              objs.push(new Node(position, sqrt(sq(mouseX - pmouseX) + sq(mouseY - pmouseY)), R, G, B));
+                            }
+                            //Eraser
+                            else if (brushType == &quot;ERASER&quot; &amp;&amp; objs.length > 0) {
+                              for (var i = 0; i < objs.length; i++) {
+                                if (sqrt(sq(objs[i].position.x - mouseX) + sq(objs[i].position.y - mouseY)) <= eraserRange) {
+                                  objs.splice(i, 1);
+                                  break;
+                        
+                                }
+                              }
+                            } else if (brushType == &quot;TIMER&quot; &amp;&amp; objs.length > 0) {
+                              for (var i = 0; i < objs.length; i++) {
+                                if (sqrt(sq(objs[i].position.x - mouseX) + sq(objs[i].position.y - mouseY)) <= timerRange) {
+                                  objs[i].timepast += 2 / FPS;
+                                  objs[i].isPlaying = false;
+                                }
+                              }
+                        
+                        
+                            }
+                          }
+                          for (var i = 0; i < objs.length; i++) {
+                            objs[i].drawing();
+                            objs[i].update();
+                          }
+                          
+                          
+                          //=======================
+                          //Cursor Icon
+                          //=======================
+                          //Menu
+                          stroke(0);
+                          strokeWeight(2);
+                          if (!isMenuHide) {
+                            for (var i = 0; i < btns.length; i++) {
+                              btns[i].displayBtn();
+                              if (btns[i].isMouseInBtn()) {
+                                cursor(HAND);
+                              }
+                            }
+                          }
+                        
+                          //Canvas
+                          if (mouseX > 40 || isMenuHide) {
+                            noCursor();
+                            fill(R * 1.5, G * 1.5, B * 1.5);
+                            stroke(R * 1.5, G * 1.5, B * 1.5);
+                            if (brushType == &quot;CIRCLE&quot;) {
+                              ellipse(mouseX, mouseY, 10, 10);
+                            } else if (brushType == &quot;TRIANGLE&quot;) {
+                              triangle(mouseX - 5, mouseY + 3, mouseX + 5, mouseY + 3, mouseX, mouseY - 5);
+                            } else if (brushType == &quot;LINES&quot;) {
+                              translate(mouseX, mouseY);
+                              noFill();
+                              stroke(255 - bR);
+                              ellipse(0, 0, 20, 20);
+                              fill(R * 1.5, G * 1.5, B * 1.5);
+                              noStroke();
+                              ellipse(0, 0, 6, 6);
+                              resetMatrix();
+                            } else if (brushType == &quot;ERASER&quot;) {
+                              translate(mouseX, mouseY);
+                              noFill();
+                              stroke(255 - bR);
+                              ellipse(0, 0, eraserRange, eraserRange);
+                              resetMatrix();
+                        
+                            } else if (brushType == &quot;TIMER&quot;) {
+                              translate(mouseX, mouseY);
+                              stroke(255 - bR);
+                              noFill();
+                              ellipse(0, 0, timerRange, timerRange);
+                              ellipse(0, 0, 22, 22);
+                              ellipse(0, 0, 25, 25);
+                              fill(255 - bR);
+                              ellipse(0, 0, 3, 3);
+                              strokeWeight(2);
+                              line(0, 0, 5, 0);
+                              line(0, 0, 0, -7);
+                              resetMatrix();
+                            }
+                          }
+                        }
+                        
+                        function mouseClicked() {
+                          if (!isMenuHide) {
+                            for (var i = 0; i < btns.length; i++) {
+                              if (btns[i].isMouseInBtn()) {
+                                btns[i].clickBtn();
+                              }
+                            }
+                          }
+                          return false;
+                        }
+                        
+                        ////////////////////////////////////////////
+                        //Shortcut Key
+                        ////////////////////////////////////////////
+                        
+                        function keyPressed() {
+                          //print(&quot;keyCode is&quot;+keyCode);
+                          if (keyCode >= 49 &amp;&amp; keyCode <= 57) {
+                            btns[keyCode - 49].clickBtn();
+                          }
+                          if (keyCode == 48) {
+                            btns[9].clickBtn();
+                          }
+                          if (keyCode == 89) {
+                            btns[10].clickBtn();
+                          }
+                          if (keyCode == 87) {
+                            btns[11].clickBtn();
+                          }
+                          if (keyCode == 68) { //D
+                            btns[12].clickBtn();
+                          }
+                          if (keyCode == 66) { //B
+                            btns[13].clickBtn();
+                          }
+                          if (keyCode == 32) { //Space
+                            btns[14].clickBtn();
+                          }
+                          if (keyCode === 84) { //T
+                            btns[15].clickBtn();
+                          }
+                          if (keyCode === 69) { //E
+                            btns[16].clickBtn();
+                          }
+                          if (keyCode === 67) { //C
+                            btns[17].clickBtn();
+                          }
+                          if (keyCode == 16) { //Shift L
+                            isMenuHide = !isMenuHide;
+                          }
+                          if (keyCode == 83) { //S
+                            btns[18].clickBtn();
+                          }
+                        }
+                        
+                        ////////////////////////////////////////////
+                        //To be continued...
+                        ////////////////////////////////////////////</script>
+                          
+                        
+                        </body></html>" frameborder="0"></iframe>
                 </div>
             </div>
             <ul class="dropdown-menu" id="myEditorMenu">
@@ -550,7 +1148,23 @@
         </div>
     </script>
     
+<script>
 
+
+
+
+   function changeFrameHeight(){
+        var ifm= document.getElementById("canvas_frame"); 
+        ifm.height=document.documentElement.clientHeight;
+
+    }
+
+    window.onresize=function(){  
+         changeFrameHeight();  
+
+    }
+
+</script>
     <script src="lib/js/jquery.js"></script>
     <script src="lib/js/bootstrap.js"></script>
 
@@ -563,6 +1177,7 @@
     
     <script src="js/adjust.js"></script>
 
+    <script src="js/p5.js"></script>
     <script data-main="js/main" src="js/require.js"></script>
 </body>
 </html>
